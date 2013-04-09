@@ -1,7 +1,7 @@
 {% extends "static/template.html" %}
 
 {% block content %}
-<h1>Portefeuilles de {{ user.email() }})</h1>
+<h1>Portefeuilles de {{ user.email() }}</h1>
 	
 <button id="btn_create_ptf" class="btn" type="button">New portfolio</button>
 	
@@ -11,7 +11,8 @@
 		<input type="hidden" name="action" value="create_ptf" />
 		<table class="table table-condensed table-bordered">
 			<tr><td><label for="ptf_name">Nom</label></td></tr>
-			<tr><td><input name="ptf_name"
+			<tr><td><input id="ptf_name"
+						   name="ptf_name"
 						   type="text"
 						   placeholder="Mon portefeuille"
 						   autocomplete="off"
@@ -21,19 +22,20 @@
 	</form>
 </div>
 
-{% for p in portfolios %}
 <div id="portfolios">
-	<h2>{{ p.name }}</h2>
+{% for p in portfolios %}
+	<div id="div-{{ p.key() }}">
+		<h2>{{ p.name }}</h2>
 		<div class="btn-group">
 			<a class="btn" href="#"><i class="icon-plus-sign"></i> Add Asset</a>
 		  	<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
 		  	<ul class="dropdown-menu">
 		    	<li>
-		    		<a href="/ptf?action=del_ptf&ptf={{ p.key() }}"><i class="icon-trash"></i> Delete Portfolio</a>
+		    		<a href='#' id="action_{{ p.key() }}" class="action_delete"><i class="icon-trash"></i> Delete Portfolio</a>
 		    	</li>
 		    	<li class="divider"></li>
 		    	<li>
-		    		<a href="#"><i class="icon-download"></i> Export Portfolio</a>
+		    		<a href='#' id="action_{{ p.key() }}" class="action_export"><i class="icon-download"></i> Export Portfolio</a>
 		    	</li>
 		  	</ul>
 		</div>
@@ -68,9 +70,10 @@
 			{% endfor %}
 			</tbody>
 		</table>
+	</div>
 	{% endfor %}
-</div>
 {% endblock %}
+</div>
 
 {% block js_footer %}
 <script src="js/pyfiquotes-ptf.js"></script>

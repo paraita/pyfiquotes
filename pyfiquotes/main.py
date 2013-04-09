@@ -63,13 +63,19 @@ class PortfolioViewHandler(webapp2.RequestHandler):
         
     
     def create_ptf(self):
-        return True
+        ptf_name = self.request.get('name')
+        user = users.get_current_user()
+        p = Portfolio(assets=[],
+                      name=ptf_name,
+                      owner=user.email())
+        p.put()
+        return self.response.out.write('<h1>' + str(p.key()) + '</h1>')
     
     def delete_ptf(self, ptf_key):
         """ TODO
         """
-        ptf = Portfolio.get(ptf_key)
-        return self.response.out.write("delete_ptf ok (ptf=" + ptf_key + ")")
+        db.delete(ptf_key)
+        return self.response.out.write(ptf_key)
     
     def export_ptf(self, ptf_key):
         """ TODO pas urgent
@@ -103,6 +109,8 @@ class PortfolioViewHandler(webapp2.RequestHandler):
     def get(self):
         # TODO verifier les parametres de la requete (SANITIZE)
         action = self.request.get('action')
+        if action == 'create_ptf':
+            return self.create_ptf()
         if action == 'del_ptf':
             ptf = self.request.get('ptf')
             return self.delete_ptf(ptf)
