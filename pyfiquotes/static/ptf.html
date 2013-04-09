@@ -1,0 +1,77 @@
+{% extends "static/template.html" %}
+
+{% block content %}
+<h1>Portefeuilles de {{ user.email() }})</h1>
+	
+<button id="btn_create_ptf" class="btn" type="button">New portfolio</button>
+	
+<div id="div_form_create_ptf" style="display: none">
+	<form id="form_create_ptf" action="/ptf" method="GET">
+		<h2>Portfolio creation</h2>
+		<input type="hidden" name="action" value="create_ptf" />
+		<table class="table table-condensed table-bordered">
+			<tr><td><label for="ptf_name">Nom</label></td></tr>
+			<tr><td><input name="ptf_name"
+						   type="text"
+						   placeholder="Mon portefeuille"
+						   autocomplete="off"
+						   required /></td></tr>
+			<tr><td><button type=submit>Créer</button></td></tr>
+		</table>
+	</form>
+</div>
+
+{% for p in portfolios %}
+<div id="portfolios">
+	<h2>{{ p.name }}</h2>
+		<div class="btn-group">
+			<a class="btn" href="#"><i class="icon-plus-sign"></i> Add Asset</a>
+		  	<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+		  	<ul class="dropdown-menu">
+		    	<li>
+		    		<a href="/ptf?action=del_ptf&ptf={{ p.key() }}"><i class="icon-trash"></i> Delete Portfolio</a>
+		    	</li>
+		    	<li class="divider"></li>
+		    	<li>
+		    		<a href="#"><i class="icon-download"></i> Export Portfolio</a>
+		    	</li>
+		  	</ul>
+		</div>
+		<table class="table table-hover table-condensed">
+			<thead>
+				<tr>
+					<td></td>
+					<td>Symbol</td>
+					<td>Name</td>
+					<td>Market</td>
+					<td>Currency</td>
+					<td>Latest Value</td>
+					<td>Latest Volume</td>
+					<td>Timestamp</td>
+				</tr>
+			</thead>
+			<tbody>
+			{% for a in p.get_assets() %}
+				<tr>
+					<td>
+						<i class="icon-remove-sign"></i>
+						<i class="icon-edit"></i>
+					</td>
+					<td>{{ a.symbol }}</td>
+					<td>{{ a.label }}</td>
+					<td>{{ a.market }}</td>
+					<td>{{ a.currency }}</td>
+					<td>{{ a.quotes[0].value }}</td>
+					<td>{{ a.quotes[0].volume }}</td>
+					<td>{{ a.quotes[0].ts }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	{% endfor %}
+</div>
+{% endblock %}
+
+{% block js_footer %}
+<script src="js/pyfiquotes-ptf.js"></script>
+{% endblock %}
