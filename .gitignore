@@ -35,6 +35,6 @@ nosetests.xml
 .pydevproject
 
 # eclipse
-.settings
+.settings/
 .project
 .pydevproject
