@@ -1,43 +1,193 @@
 {% extends "static/template.html" %}
 
 {% block content %}
+
+<h1>Référentiel titres</h1>
+
+
+<div class="input-prepend">
+	<span class="add-on">
+		<i class="icon-search"></i>
+	</span>
+	<input class="span2" id="input_search_asset" type="text">
+</div>
+<br />
+
+<div id="div-assets" style="overflow: auto; max-height: 400px">
+	<table class="table table-hover table-condensed">
+		<thead>
+			<tr>
+				<td></td>
+				<td>Symbol</td>
+				<td>Name</td>
+				<td>Market</td>
+				<td>Currency</td>
+				<td>Latest Value</td>
+				<td>Latest Volume</td>
+				<td>Timestamp</td>
+			</tr>
+		</thead>
+		<tbody>
+			{% for asset in assets %}
+			<tr>
+				<td>
+					<i class="icon-remove-sign"></i> <i class="icon-edit"></i>
+				</td>
+				<td>{{ asset.symbol }}</td>
+				<td>{{ asset.label }}</td>
+				<td>{{ asset.market }}</td>
+				<td>{{ asset.currency }}</td>
+				<td>
+					{% if asset.quotes.fetch(1) %}
+					{{ asset.quotes[0].value }}
+					{% else %}
+					N.D
+					{% endif %}
+				</td>
+				<td>
+					{% if asset.quotes.fetch(1) %}
+					{{ asset.quotes[0].volume }}
+					{% else %}
+					N.D
+					{% endif %}
+				</td>
+				<td>
+					{% if asset.quotes.fetch(1) %}
+					{{ asset.quotes[0].ts }}
+					{% else %}
+					N.D
+					{% endif %}
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<button id="btn_declare_asset" class="btn" type="button">Declare new asset</button>
+
+<div id="div_form_declare_asset" style="display: none">
+	<form id="form_declare_asset" action="/ptf" method="GET">
+		<h2>Asset Declaration</h2>
+		<input type="hidden" name="action" value="create_ptf" />
+		<table class="table table-condensed table-bordered">
+			<tr>
+				<td><label for="asset_label">Name</label></td>
+				<td>
+					<input id="asset_label"
+						   name="asset_label"
+						   type="text"
+						   placeholder="Mon titre"
+						   autocomplete="off"
+						   required />
+				</td>
+			</tr>
+			<tr>
+				<td><label for="asset_symbol">Symbol</label></td>
+				<td>
+					<input id="asset_symbol"
+						   name="asset_symbol"
+						   type="text"
+						   placeholder="ABC"
+						   autocomplete="off"
+						   required />
+				</td>
+			</tr>
+			<tr>
+				<td><label for="asset_isin">ISIN</label></td>
+				<td>
+					<input id="asset_isin"
+						   name="asset_isin"
+						   type="text"
+						   placeholder="FR1234567890"
+						   autocomplete="off"
+						   required />
+				</td>
+			</tr>
+			<tr>
+				<td><label for="asset_market">Market</label></td>
+				<td>
+					<select id="asset_market" name="asset_market">
+						<option value="FR">FR</option>
+						<option value="US">US</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td><label for="asset_curr">Currency</label></td>
+				<td>
+					<select id="asset_curr" name="asset_curr">
+						<option value="EUR">EUR</option>
+						<option value="USD">USD</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td><label for="asset_type">Type</label></td>
+				<td>
+					<select id="asset_type" name="asset_type">
+						<option value="security">security</option>
+						<option value="rate">rate</option>
+						<option value="mf">mutual fund</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<button class="btn" type=submit>Valider</button>
+					<button id="btn_hide_asset_form" class="btn" type="button">Cacher</button>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
 <h1>Portefeuilles de {{ user.email() }}</h1>
-	
+
 <button id="btn_create_ptf" class="btn" type="button">New portfolio</button>
-	
+
 <div id="div_form_create_ptf" style="display: none">
 	<form id="form_create_ptf" action="/ptf" method="GET">
 		<h2>Portfolio creation</h2>
 		<input type="hidden" name="action" value="create_ptf" />
 		<table class="table table-condensed table-bordered">
-			<tr><td><label for="ptf_name">Nom</label></td></tr>
-			<tr><td><input id="ptf_name"
+			<tr>
+				<td><label for="ptf_name">Nom</label></td>
+				<td>
+					<input id="ptf_name"
 						   name="ptf_name"
 						   type="text"
 						   placeholder="Mon portefeuille"
 						   autocomplete="off"
-						   required /></td></tr>
-			<tr><td><button type=submit>Créer</button></td></tr>
+						   required />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<button class="btn" type=submit>Créer</button>
+					<button id="btn_hide_ptf_form" class="btn" type="button">Cacher</button>
+				</td>
+				<td></td>
+			</tr>
 		</table>
 	</form>
 </div>
 
 <div id="portfolios">
-{% for p in portfolios %}
+	{% for p in portfolios %}
 	<div id="div-{{ p.key() }}">
 		<h2>{{ p.name }}</h2>
 		<div class="btn-group">
 			<a class="btn" href="#"><i class="icon-plus-sign"></i> Add Asset</a>
-		  	<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-		  	<ul class="dropdown-menu">
-		    	<li>
-		    		<a href='#' id="action_{{ p.key() }}" class="action_delete"><i class="icon-trash"></i> Delete Portfolio</a>
-		    	</li>
-		    	<li class="divider"></li>
-		    	<li>
-		    		<a href='#' id="action_{{ p.key() }}" class="action_export"><i class="icon-download"></i> Export Portfolio</a>
-		    	</li>
-		  	</ul>
+			<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span
+				class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a href='#' id="action_{{ p.key() }}" class="action_delete"><i
+						class="icon-trash"></i> Delete Portfolio</a></li>
+				<li class="divider"></li>
+				<li><a href='#' id="action_{{ p.key() }}" class="action_export"><i
+						class="icon-download"></i> Export Portfolio</a></li>
+			</ul>
 		</div>
 		<table class="table table-hover table-condensed">
 			<thead>
@@ -53,11 +203,10 @@
 				</tr>
 			</thead>
 			<tbody>
-			{% for a in p.get_assets() %}
+				{% for a in p.get_assets() %}
 				<tr>
 					<td>
-						<i class="icon-remove-sign"></i>
-						<i class="icon-edit"></i>
+						<i class="icon-remove-sign"></i> <i class="icon-edit"></i>
 					</td>
 					<td>{{ a.symbol }}</td>
 					<td>{{ a.label }}</td>
@@ -67,13 +216,13 @@
 					<td>{{ a.quotes[0].volume }}</td>
 					<td>{{ a.quotes[0].ts }}</td>
 				</tr>
-			{% endfor %}
+				{% endfor %}
 			</tbody>
 		</table>
 	</div>
 	{% endfor %}
-{% endblock %}
 </div>
+{% endblock %}
 
 {% block js_footer %}
 <script src="js/pyfiquotes-ptf.js"></script>

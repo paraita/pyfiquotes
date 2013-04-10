@@ -1,5 +1,6 @@
 from google.appengine.ext import db
 
+
 class Asset(db.Model):
     symbol = db.StringProperty(required=True)
     isin = db.StringProperty(required=True)
